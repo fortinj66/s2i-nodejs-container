@@ -38,6 +38,28 @@ mv /tmp/src/* ./
 # Fix source directory permissions
 fix-permissions ./
 
+
+NPM_VERSION_OVERIDE_INTERNAL=$(node -e "console.log(require('./package.json').engines.node);" | \
+	sed -e "s/[\^~]//g" |  sed -e "s/.\0//" | sed -e "s/undefined//")
+
+NPM_VERSION_OVERIDE=${NPM_VERSION_OVERIDE_INTERNAL:-$NPM_VERSION_OVERIDE}
+
+
+echo "NPM_VERSION_OVERIDE: ${NPM_VERSION_OVERIDE}"
+
+if [ ! -z $NPM_VERSION_OVERIDE ]; then
+    echo "---> Installing NPM Version" $(safeLogging $NPM_VERSION_OVERIDE)
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+	unset NPM_CONFIG_PREFIX
+	NPM_CONFIG_PREFIX="" nvm install $NPM_VERSION_OVERIDE
+	echo "---> Enabling NPM Version" $(safeLogging $NPM_VERSION_OVERIDE)
+    NPM_CONFIG_PREFIX="" nvm use $NPM_VERSION_OVERIDE
+fi
+
 if [ ! -z $HTTP_PROXY ]; then
     echo "---> Setting npm http proxy to" $(safeLogging $HTTP_PROXY)
 	npm config set proxy $HTTP_PROXY
