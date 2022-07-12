@@ -130,6 +130,7 @@ prepare() {
       if [[ " ${CLIENT_LIST[*]} " =~ "${test_case} " ]];
       then
         PREFIX=$1
+        PREFIX=${PREFIX//-/}
         REPO="${PREFIX^^}"_REPO
         REVISION="${PREFIX^^}"_REVISION
         prepare_client_repo "${test_dir}/$1" "${!REPO}" "${!REVISION}"
@@ -445,7 +446,8 @@ function test_nodemon_present() {
 
 function test_npm_cache_cleared() {
   # Test that the npm cache has been cleared
-  devdep=$(docker run --rm ${IMAGE_NAME}-testapp /bin/bash -c "! test -d \$(npm config get cache)")
+  cache_loc=$(docker run --rm ${IMAGE_NAME}-testapp /bin/bash -c "npm config get cache")
+  devdep=$(docker run --rm ${IMAGE_NAME}-testapp /bin/bash -c "! test -d $cache_loc")
   check_result "$?"
 }
 
@@ -551,12 +553,41 @@ function test_nodejs_imagestream() {
     *) echo "Imagestream testing not supported for $OS environment." ; return 0 ;;
   esac
 
-  ct_os_test_image_stream_quickstart "${THISDIR}/../imagestreams/nodejs-${OS%[0-9]*}.json" \
-                                     "https://raw.githubusercontent.com/sclorg/nodejs-ex/master/openshift/templates/nodejs.json" \
-                                     "${IMAGE_NAME}" \
-                                     'nodejs' \
-                                     "Welcome to your Node.js application on OpenShift" \
-                                     8080 http 200 "-p SOURCE_REPOSITORY_REF=master -p SOURCE_REPOSITORY_URL=https://github.com/sclorg/nodejs-ex.git -p NODEJS_VERSION=${VERSION} -p NAME=nodejs-testing"
+  ct_os_test_image_stream_quickstart \
+    "${THISDIR}/../imagestreams/nodejs-${OS%[0-9]*}.json" \
+    "https://raw.githubusercontent.com/sclorg/nodejs-ex/master/openshift/templates/nodejs.json" \
+    "${IMAGE_NAME}" \
+    'nodejs' \
+    "Welcome to your Node.js application on OpenShift" \
+    8080 http 200 \
+    "-p SOURCE_REPOSITORY_REF=master -p SOURCE_REPOSITORY_URL=https://github.com/sclorg/nodejs-ex.git -p NODEJS_VERSION=${VERSION} -p NAME=nodejs-testing"
+}
+
+function test_nodejs_s2i_container() {
+  ct_os_test_s2i_app "${IMAGE_NAME}" \
+    "https://github.com/sclorg/s2i-nodejs-container.git" \
+    "test/test-app" \
+    "This is a node.js echo service"
+}
+
+function test_nodejs_s2i_app_ex() {
+  ct_os_test_s2i_app "${IMAGE_NAME}" \
+    "https://github.com/sclorg/nodejs-ex.git" \
+    "." \
+    "Welcome to your Node.js application on OpenShift"
+}
+
+function test_nodejs_s2i_templates() {
+  local ret_val=0
+  for template in nodejs.json nodejs-mongodb.json nodejs-mongodb-persistent.json ; do
+    ct_os_test_template_app ${IMAGE_NAME} \
+      https://raw.githubusercontent.com/sclorg/nodejs-ex/${BRANCH_TO_TEST}/openshift/templates/${template} \
+      nodejs \
+      "Welcome to your Node.js application on OpenShift" \
+      8080 http 200 \
+      "-p SOURCE_REPOSITORY_REF=${BRANCH_TO_TEST} -p SOURCE_REPOSITORY_URL=https://github.com/sclorg/nodejs-ex.git -p NODEJS_VERSION=${VERSION} -p NAME=nodejs-testing" || ret_val=1
+  done
+  return $ret_val
 }
 
 # vim: set tabstop=2:shiftwidth=2:expandtab:

@@ -7,7 +7,7 @@ but compared to the full-sized Node.JS 14 image it will be missing many build-ti
 Users can choose between RHEL, CentOS and Fedora based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
 the CentOS images are available on [Quay.io](https://quay.io/organization/centos7),
-and the Fedora images are available in [Fedora Registry](https://registry.fedoraproject.org/).
+and the Fedora images are available in [Quay.io](https://quay.io/organization/fedora).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
 Note: while the examples in this README are calling `podman`, you can replace any such calls by `docker` with the same arguments
@@ -34,7 +34,7 @@ The first BuildConfig defines and builds the builder image, using the source-to-
 the `nodejs-builder-image` imagestream.
 
 ```
-apiVersion: v1
+apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   name: nodejs-builder-image
@@ -59,7 +59,7 @@ from the image and creates a new runtime image on top of the nodejs minimal imag
 The resulting runtime image is then pushed into the `nodejs-runtime-image` imagestream.
 
 ```
-apiVersion: v1
+apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   name: nodejs-runtime-image
