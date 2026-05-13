@@ -31,14 +31,34 @@ Things like:
 - Default speaker: Kitchen HomePod
 ```
 
-## Why Separate?
+## Environment
 
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+- **Host:** Johms_Lenovo
+- **OS:** Windows_NT 10.0.26200 (x64)
+- **Shell:** PowerShell
+- **Node:** v24.15.0
+- **Git:** Initialized, agent identity: Spock <spock@openclaw.local>
 
----
+## Workspace
 
-Add whatever helps you do your job. This is your cheat sheet.
+- **Path:** C:\Users\forti\.openclaw\workspace
+- **Structure:** AGENTS.md, SOUL.md, USER.md, IDENTITY.md, TOOLS.md, HEARTBEAT.md, MEMORY.md
+- **Memory:** daily files in memory/YYYY-MM-DD.md
+- **Heartbeat:** Configured for periodic checks (email, calendar, weather, memory maintenance, system health)
+
+## OpenClaw
+
+- **Runtime:** main
+- **Channel:** webchat
+- **Model:** ollama/kimi-k2.6:cloud
+- **Default Model:** ollama/kimi-k2.6:cloud
+
+## Notes
+
+- Whisky: no peat, splash of water, no ice (John's preference)
+- Bourbon: acceptable alternative, recommendations logged
+- Humor style: dry, science-adjacent, Vulcan-approved
 
 ## Related
 
-- [Agent workspace](/concepts/agent-workspace)
+- [AGENTS.md](AGENTS.md)
