@@ -1,0 +1,11 @@
+{
+  "name": "test-node-env-override",
+  "version": "1.0.0",
+  "description": "Test app with NODE_VERSION environment variable override",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Test",
+  "license": "MIT"
+}

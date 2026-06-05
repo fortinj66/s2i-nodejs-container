@@ -1,0 +1,11 @@
+{
+  "name": "test-node-nvmrc",
+  "version": "1.0.0",
+  "description": "Test app with .nvmrc file for version selection",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Test",
+  "license": "MIT"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "test-node-16-exact",
+  "version": "1.0.0",
+  "description": "Test app with exact Node.js 16 version",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "16.13.0"
+  },
+  "author": "Test",
+  "license": "MIT"
+}
