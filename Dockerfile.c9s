@@ -1,4 +1,4 @@
-FROM ubi8/s2i-core:1
+FROM quay.io/sclorg/s2i-core-c9s:c9s
 
 # This image provides a Node.JS environment you can use to run your Node.JS
 # applications.
@@ -21,12 +21,12 @@ ENV NODEJS_VERSION=16 \
     NAME=nodejs \
     NPM_CONFIG_PREFIX=$HOME/.npm-global \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH \
-    CNB_STACK_ID=com.redhat.stacks.ubi8-nodejs-16 \
+    CNB_STACK_ID=com.redhat.stacks.c9s-nodejs-16 \
     CNB_USER_ID=1001 \
     CNB_GROUP_ID=0
 
 ENV SUMMARY="Platform for building and running Node.js $NODEJS_VERSION applications" \
-    DESCRIPTION="Node.js $NODEJS_VERSION available as container is a base platform for \
+DESCRIPTION="Node.js $NODEJS_VERSION available as container is a base platform for \
 building and running various Node.js $NODEJS_VERSION applications and frameworks. \
 Node.js is a platform built on Chrome's JavaScript runtime for easily building \
 fast, scalable network applications. Node.js uses an event-driven, non-blocking I/O model \
@@ -41,23 +41,22 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="builder,$NAME,${NAME}${NODEJS_VERSION}" \
       io.openshift.s2i.scripts-url="image:///usr/libexec/s2i" \
       io.s2i.scripts-url="image:///usr/libexec/s2i" \
-      io.buildpacks.stack.id="com.redhat.stacks.ubi8-nodejs-16" \
+      io.buildpacks.stack.id="com.redhat.stacks.c9s-nodejs-16" \
       com.redhat.dev-mode="DEV_MODE:false" \
       com.redhat.deployments-dir="${APP_ROOT}/src" \
       com.redhat.dev-mode.port="DEBUG_PORT:5858" \
       com.redhat.component="${NAME}-${NODEJS_VERSION}-container" \
-      name="ubi8/$NAME-$NODEJS_VERSION" \
+      name="sclorg/$NAME-$NODEJS_VERSION" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>" \
       help="For more information visit https://github.com/sclorg/s2i-nodejs-container" \
-      usage="s2i build <SOURCE-REPOSITORY> ubi8/$NAME-$NODEJS_VERSION:latest <APP-NAME>"
+      usage="s2i build <SOURCE-REPOSITORY> quay.io/sclorg/$NAME-$NODEJS_VERSION-c9s:latest <APP-NAME>"
 
-RUN yum -y module enable nodejs:$NODEJS_VERSION && \
-    MODULE_DEPS="make gcc gcc-c++ libatomic_ops git openssl-devel" && \
+# Package libatomic_ops was removed
+RUN MODULE_DEPS="make gcc gcc-c++ git openssl-devel" && \
     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper" && \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
-    ln -s /usr/libexec/platform-python /usr/bin/python3 && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*'
