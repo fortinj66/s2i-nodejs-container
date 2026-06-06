@@ -1,0 +1,2 @@
+BASE_IMAGE_NAME = nodejs
+VERSIONS = 14
