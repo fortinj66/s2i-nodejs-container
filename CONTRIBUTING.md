@@ -218,7 +218,7 @@ git checkout -b node-26
 
 ### Step 2 — Update every file in this checklist
 
-Work through each file below. Do not skip any. Do not change `NODEJS_VERSION` in Dockerfiles manually — it is set via build args or environment; verify it is already correct before proceeding.
+Work through each file below. Do not skip any. `NODEJS_VERSION` is a hardcoded `ENV` statement in each Dockerfile — it must be updated manually for every new version branch.
 
 ---
 
@@ -226,10 +226,11 @@ Work through each file below. Do not skip any. Do not change `NODEJS_VERSION` in
 
 | String to find | Replace with |
 |----------------|-------------|
+| `ENV NODEJS_VERSION=24` | `ENV NODEJS_VERSION=26` |
 | `CNB_STACK_ID=com.redhat.stacks.ubi9-nodejs-24` | `CNB_STACK_ID=com.redhat.stacks.ubi9-nodejs-26` |
 | `io.buildpacks.stack.id="com.redhat.stacks.ubi9-nodejs-24"` | `io.buildpacks.stack.id="com.redhat.stacks.ubi9-nodejs-26"` |
 
-Verify: `grep "CNB_STACK_ID\|io.buildpacks.stack.id" Dockerfile.rhel9`
+Verify: `grep "NODEJS_VERSION\|CNB_STACK_ID\|io.buildpacks.stack.id" Dockerfile.rhel9`
 
 ---
 
@@ -237,10 +238,11 @@ Verify: `grep "CNB_STACK_ID\|io.buildpacks.stack.id" Dockerfile.rhel9`
 
 | String to find | Replace with |
 |----------------|-------------|
+| `ENV NODEJS_VERSION=24` | `ENV NODEJS_VERSION=26` |
 | `CNB_STACK_ID=com.redhat.stacks.c9s-nodejs-24` | `CNB_STACK_ID=com.redhat.stacks.c9s-nodejs-26` |
 | `io.buildpacks.stack.id="com.redhat.stacks.c9s-nodejs-24"` | `io.buildpacks.stack.id="com.redhat.stacks.c9s-nodejs-26"` |
 
-Verify: `grep "CNB_STACK_ID\|io.buildpacks.stack.id" Dockerfile.c9s`
+Verify: `grep "NODEJS_VERSION\|CNB_STACK_ID\|io.buildpacks.stack.id" Dockerfile.c9s`
 
 ---
 
@@ -248,10 +250,11 @@ Verify: `grep "CNB_STACK_ID\|io.buildpacks.stack.id" Dockerfile.c9s`
 
 | String to find | Replace with |
 |----------------|-------------|
+| `ENV NODEJS_VERSION=24` | `ENV NODEJS_VERSION=26` |
 | `CNB_STACK_ID=com.redhat.stacks.ubi8-nodejs-24` | `CNB_STACK_ID=com.redhat.stacks.ubi8-nodejs-26` |
 | `io.buildpacks.stack.id="com.redhat.stacks.ubi8-nodejs-24"` | `io.buildpacks.stack.id="com.redhat.stacks.ubi8-nodejs-26"` |
 
-> Note: `Dockerfile.rhel8` is excluded from active CI (`.exclude-rhel8`). Update the labels for static correctness even though the file is not built.
+> Note: `Dockerfile.rhel8` is excluded from active CI (`.exclude-rhel8`). Update all version strings for static correctness even though the file is not built.
 
 ---
 
@@ -349,8 +352,8 @@ Verify: `grep "node-24\|NODEJS_VERSION=24" .github/workflows/build-test.yml` —
 ### Step 3 — Verify the full checklist
 
 ```bash
-# No residual old-version strings anywhere
-grep -r "nodejs-24\|nodejs:24\|ubi9/nodejs-24\|node-24" \
+# No residual old-version strings anywhere (including NODEJS_VERSION)
+grep -r "NODEJS_VERSION=24\|nodejs-24\|nodejs:24\|ubi9/nodejs-24\|node-24" \
   Dockerfile.rhel9 Dockerfile.c9s Dockerfile.rhel8 \
   s2i/bin/usage README.md cccp.yml config.json Makefile \
   .github/workflows/build-test.yml
