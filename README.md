@@ -1,11 +1,10 @@
-NodeJS 16 container image
+NodeJS 24 container image
 =========================
 
-This container image includes Node.JS 16 as a [S2I](https://github.com/openshift/source-to-image) base image for your Node.JS 16 applications.
-Users can choose between RHEL, CentOS and Fedora based images.
+This container image includes Node.JS 24 as a [S2I](https://github.com/openshift/source-to-image) base image for your Node.JS 24 applications.
+Users can choose between RHEL and CentOS Stream based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
-the CentOS images are available on [Quay.io](https://quay.io/organization/centos7),
-and the Fedora images are available in [Quay.io](https://quay.io/organization/fedora).
+and the CentOS Stream images are available on [Quay.io](https://quay.io/organization/sclorg).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
 Note: while the examples in this README are calling `podman`, you can replace any such calls by `docker` with the same arguments
@@ -13,8 +12,8 @@ Note: while the examples in this README are calling `podman`, you can replace an
 Description
 -----------
 
-Node.js 16 available as container is a base platform for 
-building and running various Node.js 16 applications and frameworks. 
+Node.js 24 available as container is a base platform for 
+building and running various Node.js 24 applications and frameworks. 
 Node.js is a platform built on Chrome's JavaScript runtime for easily building 
 fast, scalable network applications. Node.js uses an event-driven, non-blocking I/O model 
 that makes it lightweight and efficient, perfect for data-intensive real-time applications 
@@ -22,12 +21,12 @@ that run across distributed devices.
 
 Usage in OpenShift
 ------------------
-In this example, we will assume that you are using the `ubi8/nodejs-16` image, available via `nodejs:16` imagestream tag in Openshift.
+In this example, we will assume that you are using the `ubi9/nodejs-24` image, available via `nodejs:24` imagestream tag in Openshift.
 
 To build a simple [nodejs-sample-app](https://github.com/sclorg/nodejs-ex.git) application in Openshift:
 
 ```
-oc new-app nodejs:16~https://github.com/sclorg/nodejs-ex.git
+oc new-app nodejs:24~https://github.com/sclorg/nodejs-ex.git
 ```
 
 To access the application:
@@ -61,10 +60,10 @@ To use the Node.js image in a Dockerfile, follow these steps:
 #### 1. Pull a base builder image to build on
 
 ```
-podman pull ubi8/nodejs-16
+podman pull ubi9/nodejs-24
 ```
 
-An UBI image `ubi8/nodejs-16` is used in this example. This image is usable and freely redistributable under the terms of the UBI End User License Agreement (EULA). See more about UBI at [UBI FAQ](https://developers.redhat.com/articles/ubi-faq).
+An UBI image `ubi9/nodejs-24` is used in this example. This image is usable and freely redistributable under the terms of the UBI End User License Agreement (EULA). See more about UBI at [UBI FAQ](https://developers.redhat.com/articles/ubi-faq).
 
 #### 2. Pull an application code
 
@@ -86,7 +85,7 @@ For all these three parts, users can either setup all manually and use commands 
 
 ##### 3.1. To use your own setup, create a Dockerfile with this content:
 ```
-FROM ubi8/nodejs-16
+FROM ubi9/nodejs-24
 
 # Add application sources
 ADD app-src .
@@ -100,7 +99,7 @@ CMD npm run -d start
 
 ##### 3.2. To use the Source-to-Image scripts and build an image using a Dockerfile, create a Dockerfile with this content:
 ```
-FROM ubi8/nodejs-16
+FROM ubi9/nodejs-24
 
 # Add application sources to a directory that the assemble script expects them
 # and set permissions so that the container runs without root access
@@ -246,5 +245,5 @@ See also
 --------
 Dockerfile and other sources are available on https://github.com/sclorg/s2i-nodejs-container.
 In that repository you also can find another versions of Node.js environment Dockerfiles.
-Dockerfile for CentOS is called `Dockerfile`, Dockerfile for RHEL7 is called `Dockerfile.rhel7`,
-for RHEL8 it's `Dockerfile.rhel8`, for RHEL9 it's `Dockerfile.rhel9` and the Fedora Dockerfile is called Dockerfile.fedora.
+The primary supported Dockerfiles are `Dockerfile.rhel9` (UBI 9) and `Dockerfile.c9s` (CentOS Stream 9).
+For RHEL8 it's `Dockerfile.rhel8`.

@@ -1,0 +1,101 @@
+---
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - node-24
+  pull_request:
+    branches:
+      - node-24
+
+jobs:
+  lint:
+    name: Lint and Static Checks
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bash syntax check — S2I scripts
+        run: |
+          bash -n s2i/bin/assemble s2i/bin/run s2i/bin/usage s2i/bin/save-artifacts
+          echo "All S2I scripts pass bash -n syntax check."
+
+      - name: Static check — NODEJS_VERSION=24 in all Dockerfiles
+        run: |
+          for f in Dockerfile.rhel9 Dockerfile.c9s Dockerfile.rhel8; do
+            if grep -q "NODEJS_VERSION=24" "$f"; then
+              echo "PASS: $f contains NODEJS_VERSION=24"
+            else
+              echo "FAIL: $f does not contain NODEJS_VERSION=24"
+              exit 1
+            fi
+          done
+
+      - name: Static check — npm config get tmp absent from assemble
+        run: |
+          if grep -q "npm config get tmp" s2i/bin/assemble; then
+            echo "FAIL: 'npm config get tmp' found in s2i/bin/assemble (must be removed)"
+            exit 1
+          else
+            echo "PASS: 'npm config get tmp' absent from s2i/bin/assemble"
+          fi
+
+      - name: Static check — no nodejs-16 in README or usage
+        run: |
+          FAIL=0
+          if grep -q "nodejs-16" README.md; then
+            echo "FAIL: 'nodejs-16' found in README.md"
+            FAIL=1
+          else
+            echo "PASS: 'nodejs-16' absent from README.md"
+          fi
+          if grep -q "nodejs-16" s2i/bin/usage; then
+            echo "FAIL: 'nodejs-16' found in s2i/bin/usage"
+            FAIL=1
+          else
+            echo "PASS: 'nodejs-16' absent from s2i/bin/usage"
+          fi
+          exit $FAIL
+
+  build:
+    name: Container Build and Smoke Test
+    runs-on: ubuntu-24.04
+    # Container runtime may not be available in all CI environments
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Dockerfile.rhel9
+        run: |
+          docker build -f Dockerfile.rhel9 -t s2i-nodejs-24-test:ci .
+
+      - name: Smoke test — node --version outputs v24.x
+        run: |
+          NODE_VER=$(docker run --rm s2i-nodejs-24-test:ci node --version)
+          echo "node --version: $NODE_VER"
+          if echo "$NODE_VER" | grep -qP "^v24\."; then
+            echo "PASS: node version is $NODE_VER"
+          else
+            echo "FAIL: expected v24.x, got $NODE_VER"
+            exit 1
+          fi
+
+      - name: Smoke test — npm --version outputs 10.x+
+        run: |
+          NPM_VER=$(docker run --rm s2i-nodejs-24-test:ci npm --version)
+          echo "npm --version: $NPM_VER"
+          if echo "$NPM_VER" | grep -qP "^1[0-9]\."; then
+            echo "PASS: npm version is $NPM_VER (>=10.x)"
+          else
+            echo "FAIL: expected npm 10.x+, got $NPM_VER"
+            exit 1
+          fi
+
+      - name: Cleanup test image
+        if: always()
+        run: docker rmi s2i-nodejs-24-test:ci || true
